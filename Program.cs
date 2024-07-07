@@ -1,4 +1,5 @@
 using BasicDotNetCoreAPI.Data;
+using BasicDotNetCoreAPI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 #region Configure the DbContext
 //Configure the DbContext
@@ -26,7 +29,6 @@ builder.Services.AddDbContext<CustomerDbContext>(options =>
 );
 
 #endregion
-
 
 var app = builder.Build();
 

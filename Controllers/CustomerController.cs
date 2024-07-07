@@ -1,10 +1,78 @@
 ﻿using BasicDotNetCoreAPI.Data;
 using BasicDotNetCoreAPI.Models;
+using BasicDotNetCoreAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace BasicDotNetCoreAPI.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CustomerController : ControllerBase
+    {
+
+        private readonly ICustomerService _customerService ;
+        public CustomerController(ICustomerService customer)
+        {
+            _customerService = customer;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllCustomers()
+        {
+            var customers = await _customerService.GetAllCustomersAsync();
+            return Ok(customers);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCustomerById(int id)
+        {
+            var customer = await _customerService.GetCustomerByIdAsync(id);
+            if (customer == null)
+            {
+                return NotFound("Customer not found");
+            }
+            return Ok(customer);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCustomer(Customer customer)
+        {
+            await _customerService.CreateCustomerAsync(customer);
+            return Ok(customer);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateCustomer(Customer customer) 
+        {
+            var customerById = await _customerService.UpdateCustomerAsync(customer);
+
+            if (customerById == null)
+            {
+                return NotFound("Invalid Customer details");
+            }
+            return Ok(customerById);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteCustomer(int id) 
+        {
+            var customerById = await _customerService.DeleteCustomerAsync(id);
+
+            if (customerById == null)
+            {
+                return NotFound("Invalid Customer details");
+            }
+            return Ok(customerById);
+        }
+    }
+}
+
+
+#region Before Repository Pattern
+
+/*namespace BasicDotNetCoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -18,13 +86,15 @@ namespace BasicDotNetCoreAPI.Controllers
             _customerDbContext = customerDbContext;
         }
 
-        public static List<Customer> customers = new()
-        {
-            new Customer { Id = 1, Name="Jeslur", City="Colombo", Country="Sri Lanaka"},
-            new Customer { Id = 1, Name="xxxx", City="Jaffna", Country="Sri Lanaka"},
-            new Customer { Id = 1, Name="yyyy", City="Matara", Country="Sri Lanaka"}
+        #region Before Db Connection configuration
+        *//* public static List<Customer> customers = new()
+         {
+             new Customer { Id = 1, Name="Jeslur", City="Colombo", Country="Sri Lanaka"},
+             new Customer { Id = 1, Name="xxxx", City="Jaffna", Country="Sri Lanaka"},
+             new Customer { Id = 1, Name="yyyy", City="Matara", Country="Sri Lanaka"}
 
-        };
+         };*//*
+        #endregion
 
         [HttpGet]
         public async Task<IActionResult> GetAllCustomers()
@@ -41,12 +111,12 @@ namespace BasicDotNetCoreAPI.Controllers
         public async Task<IActionResult> GetCustomerById(int id)
         {
             #region Before Db Connection configuration
-            /*var customer = customers.Find(c => c.Id == id);
+            *//*var customer = customers.Find(c => c.Id == id);
             if(customer == null)
             {
                 return NotFound("Customer not found");
             }
-            return Ok(customer);*/
+            return Ok(customer);*//*
             #endregion
 
             var customer = await _customerDbContext.Customers.FirstOrDefaultAsync(c => c.Id == id);
@@ -62,8 +132,8 @@ namespace BasicDotNetCoreAPI.Controllers
         public async Task<IActionResult> CreateCustomer(Customer customer)
         {
             #region Before Db Connection configuration
-            /*customers.Add(customer);
-            return Ok(customers);*/
+            *//*customers.Add(customer);
+            return Ok(customers);*//*
             #endregion
 
             await _customerDbContext.Customers.AddAsync(customer);
@@ -72,10 +142,10 @@ namespace BasicDotNetCoreAPI.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateCustomer(Customer customer) 
+        public async Task<IActionResult> UpdateCustomer(Customer customer)
         {
             #region Before Db Connection configuration
-            /*var customerbyid = customers.Find(c => c.Id ==  customer.Id);
+            *//*var customerbyid = customers.Find(c => c.Id ==  customer.Id);
             
             if(customerbyid == null)
             {
@@ -85,7 +155,7 @@ namespace BasicDotNetCoreAPI.Controllers
             customerbyid.City = customer.City;
             customerbyid.Country = customer.Country;
 
-            return Ok(customerbyid);*/
+            return Ok(customerbyid);*//*
             #endregion
 
             var customerById = await _customerDbContext.Customers.FirstOrDefaultAsync(c => c.Id == customer.Id);
@@ -104,16 +174,16 @@ namespace BasicDotNetCoreAPI.Controllers
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteCustomer(int id) 
+        public async Task<IActionResult> DeleteCustomer(int id)
         {
             #region Before Db Connection configuration
-            /*var customer = customers.Find(c => c.Id == id);
+            *//*var customer = customers.Find(c => c.Id == id);
             if (customer == null)
             {
                 return NotFound("Invalid Customer details");
             }
             customers.Remove(customer);
-            return Ok(customers);*/
+            return Ok(customers);*//*
             #endregion
 
             var customerById = await _customerDbContext.Customers.FirstOrDefaultAsync(c => c.Id == id);
@@ -123,7 +193,7 @@ namespace BasicDotNetCoreAPI.Controllers
                 return NotFound("Invalid Customer details");
             }
 
-             _customerDbContext.Customers.Remove(customerById);
+            _customerDbContext.Customers.Remove(customerById);
 
             await _customerDbContext.SaveChangesAsync();
             return Ok(customerById);
@@ -131,3 +201,5 @@ namespace BasicDotNetCoreAPI.Controllers
         }
     }
 }
+*/
+#endregion
